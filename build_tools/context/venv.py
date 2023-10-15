@@ -48,15 +48,34 @@ class Venv(AbstractContextManager):
             activate_script_path = self.venv_path / activate_script
 
             # Modify PATH directly to include the virtual environment's bin directory
-            os.environ["PATH"] = f"{self.venv_path / 'bin'}:{os.environ['PATH']}"
-
-            self.venv_activated = True
+            self.__set_environ(using_venv=True)
 
     def deactivate_venv(self):
         if self.venv_activated:
             # Restore the original PATH by removing the virtual environment's bin directory
             bin_path = self.venv_path / 'bin'
-            os.environ["PATH"] = os.environ["PATH"].replace(f"{bin_path}:", "")
+            self.__set_environ(using_venv=False)
+
+    def __set_environ(self, using_venv=True):
+        if using_venv:
+            self.old_path = os.environ["PATH"]
+
+            os.environ["PATH"] = f"{self.venv_path / 'bin'}:{os.environ['PATH']}"
+            os.environ["VIRTUAL_ENV"] = f"{self.venv_path.absolute()}"
+
+            try:
+                self.old_python_home = os.environ["PYTHONHOME"]
+                del os.environ["PYTHONHOME"]
+            except KeyError:
+                self.old_python_home = None
+
+            self.venv_activated = True
+        else:
+            if self.old_path:
+                os.environ["PATH"] = self.old_path
+            if self.old_python_home:
+                os.environ["PYTHONHOME"] = self.old_python_home
+            del os.environ["VIRTUAL_ENV"]
             self.venv_activated = False
 
     def __is_in_workspace(self):

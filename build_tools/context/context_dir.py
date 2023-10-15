@@ -16,12 +16,13 @@ class Dir(AbstractContextManager):
 
     def __enter__(self):
         if self.mkdir:
-            if not self.path.is_dir() and self.__is_in_workspace:
+            if self.__is_in_workspace:
+                os.chdir(self.path)
+            if not self.path.is_dir():
                 print(f"Creating {self.path}")
                 self.path.mkdir(parents=True, exist_ok=True)
-                os.chdir(self.path)
             else:
-                print(f"The specified path already exists: {self.path}")
+                print(f"Using existing directory: {self.path}")
         return self
 
     def __exit__(self, x, y, z):
