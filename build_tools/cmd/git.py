@@ -42,7 +42,7 @@ class PythonGitRepo(GitRepo):
         #     self.python_cmd = ["/usr/bin/env", "python"]
 
         self.python_cmd_args = []
-        self.modes = ["pip", "wheel"]
+        self.modes = ["install", "wheel"]
 
     def set_requirements_file(self, file_path: str = "requirements.txt"):
         self.python_cmd_args.extend(["--requirement", file_path])
@@ -59,9 +59,9 @@ class PythonGitRepo(GitRepo):
     def wheels(self, dest: str):
         cmd = self.python_cmd.copy()
         if "--requirement" in self.python_cmd_args:
-            cmd.extend(["wheel"])
+            cmd.extend(["pip", "wheel", "-w", dest])
         else:
-            cmd.extend(["wheel", "."])
+            cmd.extend(["pip", "wheel", "-w", dest, f"./{self.repo_name}"])
         self.cmds_to_run.append(cmd + self.python_cmd_args)
         return self
 
@@ -70,7 +70,7 @@ class PythonGitRepo(GitRepo):
         if "--requirement" in self.python_cmd_args:
             cmd.extend(["pip", "install"])
         else:
-            cmd.extend(["pip", "install", "."])
+            cmd.extend(["pip", "install", f"./{self.repo_name}"])
         self.cmds_to_run.append(cmd + self.python_cmd_args)
         return self
 
