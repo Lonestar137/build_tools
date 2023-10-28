@@ -2,18 +2,22 @@ import os
 import shutil
 import subprocess
 import platform
+from typing import List
 from pathlib import Path
 from contextlib import AbstractContextManager
 
 
 class Venv(AbstractContextManager):
-    def __init__(self, path: str, mkdir=True, remove_after=False):
+    def __init__(self, path: str, mkdir=True, remove_after=False, py_modules: List[str] = []):
         self.start_dir = Path(os.getcwd()).absolute()
         self.venv_path = Path(path)
+        self.venv_python = None
         self.mkdir = mkdir
         self.remove_after = remove_after
         self.venv_activated = False
         self.__error = None
+        self.__pymodules = py_modules
+        self.__pymodules_installed = False
 
     def __enter__(self):
         if self.mkdir:
@@ -43,20 +47,30 @@ class Venv(AbstractContextManager):
             if not self.venv_path.is_dir() or not self.__is_in_workspace():
                 return
 
-            activate_script = "activate"
+            # activate_script = "activate"
             if os.name == "nt":
-                activate_script = "Scripts/activate.bat"
+                # activate_script = "Scripts/activate.bat"
+                self.venv_python = self.venv_path / "Scripts/python.exe"
             else:
-                activate_script = "bin/activate"
+                self.venv_python = self.venv_path / "bin/python"
+                # activate_script = "bin/activate"
 
             # Modify PATH directly to include the virtual environment's bin directory
             self.__set_environ(using_venv=True)
+            if self.__pymodules != [] and not self.__pymodules_installed:
+                self.install()
 
     def deactivate_venv(self):
         if self.venv_activated:
             # Restore the original PATH by removing the virtual environment's bin directory
-            bin_path = self.venv_path / 'bin'
+            # bin_path = self.venv_path / 'bin'
             self.__set_environ(using_venv=False)
+
+    def install(self, requirements: List[str] = None):
+        if requirements:
+            self.__pymodules.extend(requirements)
+        for mod in self.__pymodules:
+            subprocess.run([self.venv_python.__str__(), "install", mod])
 
     def __set_environ(self, using_venv=True):
         if using_venv:
@@ -66,18 +80,10 @@ class Venv(AbstractContextManager):
             os.environ["PATH"] = f"{abs_path}:{os.environ['PATH']}"
             os.environ["VIRTUAL_ENV"] = f"{self.venv_path.absolute()}"
 
-            # try:
-            #     self.old_python_home = os.environ["PYTHONHOME"]
-            #     del os.environ["PYTHONHOME"]
-            # except KeyError:
-            #     self.old_python_home = None
-
             self.venv_activated = True
         else:
             if self.old_path:
                 os.environ["PATH"] = self.old_path
-            if self.old_python_home:
-                os.environ["PYTHONHOME"] = self.old_python_home
             del os.environ["VIRTUAL_ENV"]
             self.venv_activated = False
 

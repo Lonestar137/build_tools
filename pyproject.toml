@@ -2,7 +2,7 @@
 [project]
 name = "build_tools"
 version = "0.1.0"
-description = "Hello world"
+description = "A workspace build api for Python."
 
 # repository = "..."
 
