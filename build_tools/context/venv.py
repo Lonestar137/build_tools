@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 import subprocess
 import platform
@@ -17,7 +18,6 @@ class Venv(AbstractContextManager):
         self.venv_activated = False
         self.__error = None
         self.__pymodules = py_modules
-        self.__pymodules_installed = False
 
     def __enter__(self):
         if self.mkdir:
@@ -28,9 +28,10 @@ class Venv(AbstractContextManager):
 
                 try:
                     self.activate_venv()
-                except:
+                except Exception as e:
                     print(
-                        f"There was a proglem creating the Virtual environment {self.venv_path}")
+                        f"There was a problem creating the Virtual environment {self.venv_path}")
+                    print(e)
         return self
 
     def __exit__(self, x, y, z):
@@ -57,7 +58,7 @@ class Venv(AbstractContextManager):
 
             # Modify PATH directly to include the virtual environment's bin directory
             self.__set_environ(using_venv=True)
-            if self.__pymodules != [] and not self.__pymodules_installed:
+            if self.__pymodules != []:
                 self.install()
 
     def deactivate_venv(self):
@@ -70,7 +71,10 @@ class Venv(AbstractContextManager):
         if requirements:
             self.__pymodules.extend(requirements)
         for mod in self.__pymodules:
-            subprocess.run([self.venv_python.__str__(), "install", mod])
+            cmd = [self.venv_python.__str__(), "-m", "pip",
+                   "install"]
+            cmd.extend(shlex.split(mod))
+            subprocess.run(cmd)
 
     def __set_environ(self, using_venv=True):
         if using_venv:

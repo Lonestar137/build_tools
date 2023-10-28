@@ -7,8 +7,8 @@ from build_tools.cmd.git import GitRepo, PythonGitRepo
 tmp_dir = Path("@tmp/test_git")
 
 
-with Dir(tmp_dir, remove_after=False):
-    test_dir = f"{tmp_dir}/xx"
+with Dir(tmp_dir, remove_after=True):
+    test_dir = f"{tmp_dir}"
 
     def test_create_dir():
         with Dir(f"{test_dir}/directory"):
