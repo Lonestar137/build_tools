@@ -22,7 +22,11 @@ class Venv(AbstractContextManager):
                     print(f"Creating venv {self.venv_path}")
                     subprocess.run(["python", "-m", "venv", self.venv_path])
 
-                self.activate_venv()
+                try:
+                    self.activate_venv()
+                except:
+                    print(
+                        f"There was a proglem creating the Virtual environment {self.venv_path}")
         return self
 
     def __exit__(self, x, y, z):
@@ -45,8 +49,6 @@ class Venv(AbstractContextManager):
             else:
                 activate_script = "bin/activate"
 
-            activate_script_path = self.venv_path / activate_script
-
             # Modify PATH directly to include the virtual environment's bin directory
             self.__set_environ(using_venv=True)
 
@@ -60,14 +62,15 @@ class Venv(AbstractContextManager):
         if using_venv:
             self.old_path = os.environ["PATH"]
 
-            os.environ["PATH"] = f"{self.venv_path / 'bin'}:{os.environ['PATH']}"
+            abs_path = self.venv_path.absolute() / 'bin'
+            os.environ["PATH"] = f"{abs_path}:{os.environ['PATH']}"
             os.environ["VIRTUAL_ENV"] = f"{self.venv_path.absolute()}"
 
-            try:
-                self.old_python_home = os.environ["PYTHONHOME"]
-                del os.environ["PYTHONHOME"]
-            except KeyError:
-                self.old_python_home = None
+            # try:
+            #     self.old_python_home = os.environ["PYTHONHOME"]
+            #     del os.environ["PYTHONHOME"]
+            # except KeyError:
+            #     self.old_python_home = None
 
             self.venv_activated = True
         else:
