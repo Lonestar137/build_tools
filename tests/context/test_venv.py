@@ -4,7 +4,7 @@ import subprocess
 import pytest
 from pathlib import Path
 from build_tools.context.venv import Venv
-from build_tools.context.context_dir import Dir
+from build_tools.context.dir import Dir
 
 
 test_venv = "test_venv"

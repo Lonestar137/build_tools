@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from build_tools.context.context_dir import Dir
+from build_tools.context.dir import Dir
 from build_tools.cmd.git import GitRepo, PythonGitRepo
 
 
