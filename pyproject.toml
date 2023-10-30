@@ -1,14 +1,14 @@
 
 [project]
 name = "build_tools"
-version = "0.1.0"
-description = "Hello world"
+version = "0.1.3"
+description = "A workspace build api for Python."
 
 # repository = "..."
 
 readme = "README.md"
 requires-python = ">=3.10"
-# dependencies = ["request"]
+dependencies = ["build"]
 
 
 [project.optional-dependencies]

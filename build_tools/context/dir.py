@@ -5,9 +5,11 @@ from contextlib import AbstractContextManager
 
 
 class Dir(AbstractContextManager):
-    def __init__(self, path: str, mkdir=True, remove_after=False):
+    def __init__(self, path, mkdir=True, remove_after=False):
         self.start_dir = Path(os.getcwd()).absolute()
-        self.path = Path(path)
+
+        self.path = path if type(path) == Path else Path(path)
+
         self.mkdir = mkdir
         self.remove_after = remove_after
 
@@ -15,13 +17,16 @@ class Dir(AbstractContextManager):
         self.__is_in_workspace = self.__in_workspace()
 
     def __enter__(self):
-        if self.mkdir:
-            if not self.path.is_dir() and self.__is_in_workspace:
+        if self.mkdir and self.__is_in_workspace:
+            if not self.path.is_dir():
                 print(f"Creating {self.path}")
                 self.path.mkdir(parents=True, exist_ok=True)
-                os.chdir(self.path)
             else:
-                print(f"The specified path already exists: {self.path}")
+                print(f"Using existing directory: {self.path}")
+
+        if self.__is_in_workspace:
+            os.chdir(self.path)
+
         return self
 
     def __exit__(self, x, y, z):
