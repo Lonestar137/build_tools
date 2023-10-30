@@ -9,8 +9,9 @@ from contextlib import AbstractContextManager
 
 
 class Venv(AbstractContextManager):
-    def __init__(self, path: str, mkdir=True, remove_after=False, py_modules: List[str] = []):
+    def __init__(self, path: str, sys_python="python", mkdir=True, remove_after=False, py_modules: List[str] = []):
         self.start_dir = Path(os.getcwd()).absolute()
+        self.__sys_python = sys_python
         self.venv_path = Path(path)
         self.venv_python = None
         self.mkdir = mkdir
@@ -24,7 +25,8 @@ class Venv(AbstractContextManager):
             if self.__is_in_workspace():
                 if not self.venv_path.is_dir():
                     print(f"Creating venv {self.venv_path}")
-                    subprocess.run(["python", "-m", "venv", self.venv_path])
+                    subprocess.run(
+                        [self.__sys_python, "-m", "venv", self.venv_path])
 
                 try:
                     self.activate_venv()
