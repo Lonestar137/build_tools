@@ -10,9 +10,8 @@ from build.env import DefaultIsolatedEnv, _find_executable_and_scripts, _create_
 
 
 class Venv(AbstractContextManager):
-    def __init__(self, path: str, sys_python="python", mkdir=True, remove_after=False, py_modules: List[str] = []):
+    def __init__(self, path: str, mkdir=True, remove_after=False, py_modules: List[str] = []):
         self.start_dir = Path(os.getcwd()).absolute()
-        self.__sys_python = sys_python
         self.venv_path = Path(path).absolute()
         self.venv_python = None
         self.venv_bin = None
