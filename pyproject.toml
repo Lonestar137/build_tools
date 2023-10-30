@@ -1,7 +1,7 @@
 
 [project]
 name = "build_tools"
-version = "0.1.0"
+version = "0.1.2"
 description = "A workspace build api for Python."
 
 # repository = "..."
@@ -17,7 +17,7 @@ test = ["pytest"]
 
 [build-system]
 # Defaults
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "build"]
 build-backend = "setuptools.build_meta"
 
 

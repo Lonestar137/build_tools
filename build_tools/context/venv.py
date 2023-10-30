@@ -6,14 +6,17 @@ import platform
 from typing import List
 from pathlib import Path
 from contextlib import AbstractContextManager
+from build.env import DefaultIsolatedEnv, _find_executable_and_scripts, _create_isolated_env_venv
 
 
 class Venv(AbstractContextManager):
     def __init__(self, path: str, sys_python="python", mkdir=True, remove_after=False, py_modules: List[str] = []):
         self.start_dir = Path(os.getcwd()).absolute()
         self.__sys_python = sys_python
-        self.venv_path = Path(path)
+        self.venv_path = Path(path).absolute()
         self.venv_python = None
+        self.venv_bin = None
+        self.vevn_lib = None
         self.mkdir = mkdir
         self.remove_after = remove_after
         self.venv_activated = False
@@ -25,9 +28,7 @@ class Venv(AbstractContextManager):
             if self.__is_in_workspace():
                 if not self.venv_path.is_dir():
                     print(f"Creating venv {self.venv_path}")
-                    subprocess.run(
-                        [self.__sys_python, "-m", "venv", self.venv_path])
-
+                    _create_isolated_env_venv(self.venv_path)
                 try:
                     self.activate_venv()
                 except Exception as e:
@@ -50,13 +51,8 @@ class Venv(AbstractContextManager):
             if not self.venv_path.is_dir() or not self.__is_in_workspace():
                 return
 
-            # activate_script = "activate"
-            if os.name == "nt":
-                # activate_script = "Scripts/activate.bat"
-                self.venv_python = self.venv_path / "Scripts/python.exe"
-            else:
-                self.venv_python = self.venv_path / "bin/python"
-                # activate_script = "bin/activate"
+            self.venv_python, self.venv_bin, self.venv_lib = _find_executable_and_scripts(
+                self.venv_path)
 
             # Modify PATH directly to include the virtual environment's bin directory
             self.__set_environ(using_venv=True)
@@ -82,8 +78,7 @@ class Venv(AbstractContextManager):
         if using_venv:
             self.old_path = os.environ["PATH"]
 
-            abs_path = self.venv_path.absolute() / 'bin'
-            os.environ["PATH"] = f"{abs_path}:{os.environ['PATH']}"
+            os.environ["PATH"] = f"{self.venv_bin}:{os.environ['PATH']}"
             os.environ["VIRTUAL_ENV"] = f"{self.venv_path.absolute()}"
 
             self.venv_activated = True
