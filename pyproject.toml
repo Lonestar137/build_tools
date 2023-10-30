@@ -8,7 +8,7 @@ description = "A workspace build api for Python."
 
 readme = "README.md"
 requires-python = ">=3.10"
-# dependencies = ["request"]
+dependencies = ["build"]
 
 
 [project.optional-dependencies]
@@ -17,7 +17,7 @@ test = ["pytest"]
 
 [build-system]
 # Defaults
-requires = ["setuptools", "wheel", "build"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
