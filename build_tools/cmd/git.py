@@ -87,12 +87,3 @@ class PythonGitRepo(GitRepo):
                     ran = True
         if not ran:
             print(f"No valid command was provided: {self.cmds_to_run}")
-
-
-if __name__ == "__main__":
-    m3 = GitRepo("git@", submodules=True)
-    m3.clone()
-
-    py3 = PythonGitRepo("github.com....", submodules=True)
-    py3.set_editable().set_requirements_file()
-    py3.clone()

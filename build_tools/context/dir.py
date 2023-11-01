@@ -48,15 +48,3 @@ class Dir(AbstractContextManager):
             self.__error = "Path must be a sub folder of the workspace."
 
         return is_sub_folder and no_relative_path_char
-
-
-if __name__ == "__main__":
-    mkdirs = True
-    with Dir("build_tools/test", mkdirs):
-        print(f"Inside {os.getcwd()}")
-        with Dir("test2/", mkdirs):
-            print(f"Inside2 {os.getcwd()}")
-        with Dir("hello/", mkdirs):
-            print(f"Inside hello {os.getcwd()}")
-        with Dir("hello2/", mkdirs):
-            print(f"Inside hello {os.getcwd()}")
